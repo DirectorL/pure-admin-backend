@@ -53,8 +53,8 @@ export default {
   mysql: {
     host: "localhost",
     charset: "utf8_general_ci",
-    user: "root",
-    password: "123456789",
+    user: "liuzhen",
+    password: "",
   },
   mongodb: {},
   sqlite: {},

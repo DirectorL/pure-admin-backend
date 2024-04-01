@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<script src="./jquery.min.js"></script>
+</head>
+<body>
+	<button onclick="a()">asd</button>
+	<script>
+		function a(){
+			$.ajax({
+				url:"./login",
+				type:"post",
+				data:{
+					username:"string",
+					password: "string"
+				},
+				error:e=>{
+					console.log(e);
+					
+				},
+				success:res=>{
+					console.log(res);
+					
+				}
+			})
+		}
+	</script>
+</body>
+</html>
