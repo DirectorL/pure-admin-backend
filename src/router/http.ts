@@ -56,76 +56,73 @@ let expiresIn = 60000;
  */
 
 const login = async (req: Request, res: Response) => {
-  // const { username, password, verify } = req.body;
-  // if (generateVerify !== verify) return res.json({
-  //   success: false,
-  // data: {
-  //   message: Message[0];
-  // }
-  // })
-  const { username, password } = req.body;
-  let sql: string =
-    "select * from users where username=" + "'" + username + "'";
-  connection.query(sql, async function (err, data: any) {
-    if (data.length == 0) {
-      await res.json({
-        success: false,
-        data: { message: Message[1] },
-      });
-    } else {
-      if (
-        createHash("md5").update(password).digest("hex") == data[0].password
-      ) {
-        const accessToken = jwt.sign(
-          {
-            accountId: data[0].id,
-          },
-          secret.jwtSecret,
-          { expiresIn }
-        );
-        if (username === "admin") {
-          await res.json({
-            success: true,
-            data: {
-              message: Message[2],
-              username,
-              // 这里模拟角色，根据自己需求修改
-              roles: ["admin"],
-              accessToken,
-              // 这里模拟刷新token，根据自己需求修改
-              refreshToken: "eyJhbGciOiJIUzUxMiJ9.adminRefresh",
-              expires: new Date(new Date()).getTime() + expiresIn,
-              // 这个标识是真实后端返回的接口，只是为了演示
-              pureAdminBackend:
-                "这个标识是pure-admin-backend真实后端返回的接口，只是为了演示",
-            },
-          });
-        } else {
-          await res.json({
-            success: true,
-            data: {
-              message: Message[2],
-              username,
-              // 这里模拟角色，根据自己需求修改
-              roles: ["common"],
-              accessToken,
-              // 这里模拟刷新token，根据自己需求修改
-              refreshToken: "eyJhbGciOiJIUzUxMiJ9.adminRefresh",
-              expires: new Date(new Date()).getTime() + expiresIn,
-              // 这个标识是真实后端返回的接口，只是为了演示
-              pureAdminBackend:
-                "这个标识是pure-admin-backend真实后端返回的接口，只是为了演示",
-            },
-          });
-        }
-      } else {
-        await res.json({
-          success: false,
-          data: { message: Message[3] },
-        });
-      }
-    }
-  });
+	// const { username, password, verify } = req.body;
+	// if (generateVerify !== verify) return res.json({
+	//   success: false,
+	// data: {
+	//   message: Message[0];
+	// }
+	// })
+	const { username, password } = req.body;
+	let sql: string = "select * from users where username=" + "'" + username + "'";
+	connection.query(sql, async function (err, data: any) {
+		if (data.length == 0) {
+			await res.json({
+				success: false,
+				data: { message: Message[1] },
+			});
+		} else {
+			if (createHash("md5").update(password).digest("hex") == data[0].password) {
+				const accessToken = jwt.sign(
+					{
+						accountId: data[0].id,
+					},
+					secret.jwtSecret,
+					{ expiresIn }
+				);
+				if (username === "admin") {
+					await res.json({
+						success: true,
+						data: {
+							message: Message[2],
+							username,
+							// 这里模拟角色，根据自己需求修改
+							roles: ["admin"],
+							accessToken,
+							// 这里模拟刷新token，根据自己需求修改
+							refreshToken: "eyJhbGciOiJIUzUxMiJ9.adminRefresh",
+							expires: new Date(new Date()).getTime() + expiresIn,
+							// 这个标识是真实后端返回的接口，只是为了演示
+							pureAdminBackend:
+								"这个标识是pure-admin-backend真实后端返回的接口，只是为了演示",
+						},
+					});
+				} else {
+					await res.json({
+						success: true,
+						data: {
+							message: Message[2],
+							username,
+							// 这里模拟角色，根据自己需求修改
+							roles: ["common"],
+							accessToken,
+							// 这里模拟刷新token，根据自己需求修改
+							refreshToken: "eyJhbGciOiJIUzUxMiJ9.adminRefresh",
+							expires: new Date(new Date()).getTime() + expiresIn,
+							// 这个标识是真实后端返回的接口，只是为了演示
+							pureAdminBackend:
+								"这个标识是pure-admin-backend真实后端返回的接口，只是为了演示",
+						},
+					});
+				}
+			} else {
+				await res.json({
+					success: false,
+					data: { message: Message[3] },
+				});
+			}
+		}
+	});
 };
 
 // /**
@@ -155,54 +152,54 @@ const login = async (req: Request, res: Response) => {
  */
 
 const register = async (req: Request, res: Response) => {
-  // const { username, password, verify } = req.body;
-  const { username, password } = req.body;
-  // if (generateVerify !== verify)
-  //   return res.json({
-  //     success: false,
-  //     data: { message: Message[0] },
-  //   });
-  if (password.length < 6)
-    return res.json({
-      success: false,
-      data: { message: Message[4] },
-    });
-  let sql: string =
-    "select * from users where username=" + "'" + username + "'";
-  connection.query(sql, async (err, data: any) => {
-    if (data.length > 0) {
-      await res.json({
-        success: false,
-        data: { message: Message[5] },
-      });
-    } else {
-      let time = await getFormatDate();
-      let sql: string =
-        "insert into users (username,password,time) value(" +
-        "'" +
-        username +
-        "'" +
-        "," +
-        "'" +
-        createHash("md5").update(password).digest("hex") +
-        "'" +
-        "," +
-        "'" +
-        time +
-        "'" +
-        ")";
-      connection.query(sql, async function (err) {
-        if (err) {
-          Logger.error(err);
-        } else {
-          await res.json({
-            success: true,
-            data: { message: Message[6] },
-          });
-        }
-      });
-    }
-  });
+	// const { username, password, verify } = req.body;
+	const { username, password } = req.body;
+	// if (generateVerify !== verify)
+	//   return res.json({
+	//     success: false,
+	//     data: { message: Message[0] },
+	//   });
+	if (password.length < 6)
+		return res.json({
+			success: false,
+			data: { message: Message[4] },
+		});
+	let sql: string =
+		"select * from users where username=" + "'" + username + "'";
+	connection.query(sql, async (err, data: any) => {
+		if (data.length > 0) {
+			await res.json({
+				success: false,
+				data: { message: Message[5] },
+			});
+		} else {
+			let time = await getFormatDate();
+			let sql: string =
+				"insert into users (username,password,time) value(" +
+				"'" +
+				username +
+				"'" +
+				"," +
+				"'" +
+				createHash("md5").update(password).digest("hex") +
+				"'" +
+				"," +
+				"'" +
+				time +
+				"'" +
+				")";
+			connection.query(sql, async function (err) {
+				if (err) {
+					Logger.error(err);
+				} else {
+					await res.json({
+						success: true,
+						data: { message: Message[6] },
+					});
+				}
+			});
+		}
+	});
 };
 
 /**
@@ -222,38 +219,38 @@ const register = async (req: Request, res: Response) => {
  */
 
 const updateList = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const { username } = req.body;
-  let payload = null;
-  try {
-    const authorizationHeader = req.get("Authorization") as string;
-    const accessToken = authorizationHeader.substr("Bearer ".length);
-    payload = jwt.verify(accessToken, secret.jwtSecret);
-  } catch (error) {
-    return res.status(401).end();
-  }
-  let modifySql: string = "UPDATE users SET username = ? WHERE id = ?";
-  let sql: string = "select * from users where id=" + id;
-  connection.query(sql, function (err, data) {
-    connection.query(sql, function (err) {
-      if (err) {
-        Logger.error(err);
-      } else {
-        let modifyParams: string[] = [username, id];
-        // 改
-        connection.query(modifySql, modifyParams, async function (err, result) {
-          if (err) {
-            Logger.error(err);
-          } else {
-            await res.json({
-              success: true,
-              data: { message: Message[7] },
-            });
-          }
-        });
-      }
-    });
-  });
+	const { id } = req.params;
+	const { username } = req.body;
+	let payload = null;
+	try {
+		const authorizationHeader = req.get("Authorization") as string;
+		const accessToken = authorizationHeader.substr("Bearer ".length);
+		payload = jwt.verify(accessToken, secret.jwtSecret);
+	} catch (error) {
+		return res.status(401).end();
+	}
+	let modifySql: string = "UPDATE users SET username = ? WHERE id = ?";
+	let sql: string = "select * from users where id=" + id;
+	connection.query(sql, function (err, data) {
+		connection.query(sql, function (err) {
+			if (err) {
+				Logger.error(err);
+			} else {
+				let modifyParams: string[] = [username, id];
+				// 改
+				connection.query(modifySql, modifyParams, async function (err, result) {
+					if (err) {
+						Logger.error(err);
+					} else {
+						await res.json({
+							success: true,
+							data: { message: Message[7] },
+						});
+					}
+				});
+			}
+		});
+	});
 };
 
 /**
@@ -272,26 +269,26 @@ const updateList = async (req: Request, res: Response) => {
  */
 
 const deleteList = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  let payload = null;
-  try {
-    const authorizationHeader = req.get("Authorization") as string;
-    const accessToken = authorizationHeader.substr("Bearer ".length);
-    payload = jwt.verify(accessToken, secret.jwtSecret);
-  } catch (error) {
-    return res.status(401).end();
-  }
-  let sql: string = "DELETE FROM users where id=" + "'" + id + "'";
-  connection.query(sql, async function (err, data) {
-    if (err) {
-      console.log(err);
-    } else {
-      await res.json({
-        success: true,
-        data: { message: Message[8] },
-      });
-    }
-  });
+	const { id } = req.params;
+	let payload = null;
+	try {
+		const authorizationHeader = req.get("Authorization") as string;
+		const accessToken = authorizationHeader.substr("Bearer ".length);
+		payload = jwt.verify(accessToken, secret.jwtSecret);
+	} catch (error) {
+		return res.status(401).end();
+	}
+	let sql: string = "DELETE FROM users where id=" + "'" + id + "'";
+	connection.query(sql, async function (err, data) {
+		if (err) {
+			console.log(err);
+		} else {
+			await res.json({
+				success: true,
+				data: { message: Message[8] },
+			});
+		}
+	});
 };
 
 /**
@@ -315,27 +312,27 @@ const deleteList = async (req: Request, res: Response) => {
  */
 
 const searchPage = async (req: Request, res: Response) => {
-  const { page, size } = req.body;
-  let payload = null;
-  try {
-    const authorizationHeader = req.get("Authorization") as string;
-    const accessToken = authorizationHeader.substr("Bearer ".length);
-    payload = jwt.verify(accessToken, secret.jwtSecret);
-  } catch (error) {
-    return res.status(401).end();
-  }
-  let sql: string =
-    "select * from users limit " + size + " offset " + size * (page - 1);
-  connection.query(sql, async function (err, data) {
-    if (err) {
-      Logger.error(err);
-    } else {
-      await res.json({
-        success: true,
-        data,
-      });
-    }
-  });
+	const { page, size } = req.body;
+	let payload = null;
+	try {
+		const authorizationHeader = req.get("Authorization") as string;
+		const accessToken = authorizationHeader.substr("Bearer ".length);
+		payload = jwt.verify(accessToken, secret.jwtSecret);
+	} catch (error) {
+		return res.status(401).end();
+	}
+	let sql: string =
+		"select * from users limit " + size + " offset " + size * (page - 1);
+	connection.query(sql, async function (err, data) {
+		if (err) {
+			Logger.error(err);
+		} else {
+			await res.json({
+				success: true,
+				data,
+			});
+		}
+	});
 };
 
 /**
@@ -358,86 +355,86 @@ const searchPage = async (req: Request, res: Response) => {
  */
 
 const searchVague = async (req: Request, res: Response) => {
-  const { username } = req.body;
-  let payload = null;
-  try {
-    const authorizationHeader = req.get("Authorization") as string;
-    const accessToken = authorizationHeader.substr("Bearer ".length);
-    payload = jwt.verify(accessToken, secret.jwtSecret);
-  } catch (error) {
-    return res.status(401).end();
-  }
-  if (username === "" || username === null)
-    return res.json({
-      success: false,
-      data: { message: Message[9] },
-    });
-  let sql: string = "select * from users";
-  sql += " WHERE username LIKE " + mysql.escape("%" + username + "%");
-  connection.query(sql, function (err, data) {
-    connection.query(sql, async function (err) {
-      if (err) {
-        Logger.error(err);
-      } else {
-        await res.json({
-          success: true,
-          data,
-        });
-      }
-    });
-  });
+	const { username } = req.body;
+	let payload = null;
+	try {
+		const authorizationHeader = req.get("Authorization") as string;
+		const accessToken = authorizationHeader.substr("Bearer ".length);
+		payload = jwt.verify(accessToken, secret.jwtSecret);
+	} catch (error) {
+		return res.status(401).end();
+	}
+	if (username === "" || username === null)
+		return res.json({
+			success: false,
+			data: { message: Message[9] },
+		});
+	let sql: string = "select * from users";
+	sql += " WHERE username LIKE " + mysql.escape("%" + username + "%");
+	connection.query(sql, function (err, data) {
+		connection.query(sql, async function (err) {
+			if (err) {
+				Logger.error(err);
+			} else {
+				await res.json({
+					success: true,
+					data,
+				});
+			}
+		});
+	});
 };
 
 // express-swagger-generator中没有文件上传文档写法，所以请使用postman调试
 const upload = async (req: Request, res: Response) => {
-  // 文件存放地址
-  const des_file: any = (index: number) =>
-    "./public/files/" + req.files[index].originalname;
-  let filesLength = req.files.length as number;
-  let result = [];
+	// 文件存放地址
+	const des_file: any = (index: number) =>
+		"./public/files/" + req.files[index].originalname;
+	let filesLength = req.files.length as number;
+	let result = [];
 
-  function asyncUpload() {
-    return new Promise((resolve, rejects) => {
-      (req.files as Array<any>).forEach((ev, index) => {
-        fs.readFile(req.files[index].path, function (err, data) {
-          fs.writeFile(des_file(index), data, function (err) {
-            if (err) {
-              rejects(err);
-            } else {
-              while (filesLength > 0) {
-                result.push({
-                  filename: req.files[filesLength - 1].originalname,
-                  filepath: utils.getAbsolutePath(des_file(filesLength - 1)),
-                });
-                filesLength--;
-              }
-              if (filesLength === 0) resolve(result);
-            }
-          });
-        });
-      });
-    });
-  }
+	function asyncUpload() {
+		return new Promise((resolve, rejects) => {
+			(req.files as Array<any>).forEach((ev, index) => {
+				fs.readFile(req.files[index].path, function (err, data) {
+					fs.writeFile(des_file(index), data, function (err) {
+						if (err) {
+							rejects(err);
+						} else {
+							while (filesLength > 0) {
+								result.push({
+									filename: req.files[filesLength - 1].originalname,
+									filepath: utils.getAbsolutePath(des_file(filesLength - 1)),
+								});
+								filesLength--;
+							}
+							if (filesLength === 0) resolve(result);
+						}
+					});
+				});
+			});
+		});
+	}
 
-  asyncUpload()
-    .then((fileList) => {
-      res.json({
-        success: true,
-        data: {
-          message: Message[11],
-          fileList,
-        },
-      });
-    })
-    .catch(() => {
-      res.json({
-        success: false,
-        data: {
-          message: Message[10],
-          fileList: [],
-        },
-      });
-    });
+	asyncUpload()
+		.then((fileList) => {
+			res.json({
+				success: true,
+				data: {
+					message: Message[11],
+					fileList,
+				},
+			});
+		})
+		.catch(() => {
+			res.json({
+				success: false,
+				data: {
+					message: Message[10],
+					fileList: [],
+				},
+			});
+		});
 };
 
 /**
@@ -448,23 +445,23 @@ const upload = async (req: Request, res: Response) => {
  */
 
 const captcha = async (req: Request, res: Response) => {
-  const create = createMathExpr({
-    mathMin: 1,
-    mathMax: 4,
-    mathOperator: "+",
-  });
-  generateVerify = Number(create.text);
-  res.type("svg"); // 响应的类型
-  res.json({ success: true, data: { text: create.text, svg: create.data } });
+	const create = createMathExpr({
+		mathMin: 1,
+		mathMax: 4,
+		mathOperator: "+",
+	});
+	generateVerify = Number(create.text);
+	res.type("svg"); // 响应的类型
+	res.json({ success: true, data: { text: create.text, svg: create.data } });
 };
 
 export {
-  login,
-  register,
-  updateList,
-  deleteList,
-  searchPage,
-  searchVague,
-  upload,
-  captcha,
+	login,
+	register,
+	updateList,
+	deleteList,
+	searchPage,
+	searchVague,
+	upload,
+	captcha,
 };
